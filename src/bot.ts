@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
-import { apiService } from './apiService.js';
+import { apiService } from '../apiService.js';
 
 dotenv.config();
 
-const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(process.env.BOT_TOKEN!, { polling: true });
 let chatIds = [259567367, 348494653, 1629479461];
 let latestAdvertCreated = 0;
 
@@ -15,17 +15,17 @@ async function init() {
   latestAdvertCreated = adverts[0].created_at;
 }
 
-bot.onText(/\/subscribe/, async (msg, match) => {
+bot.onText(/\/subscribe/, async (msg: any, match: any) => {
   const chatId = msg.chat.id;
   await apiService.createChatId(chatId);
-  chatIds = await apiService.getChatIds();
-  chatIds = chatIds.map((chatId) => chatId.id);
+  const chatIdsEntity = await apiService.getChatIds();
+  chatIds = chatIdsEntity.map((chatId: any) => chatId.id);
   bot.sendMessage(chatId, 'You are subscribed for messages');
 });
 
-bot.on('poll', (msg) => {
+bot.on('message', (msg: any) => {
   const id = msg.question.split('\n')[0];
-  msg.options.forEach(async (option) => {
+  msg.options.forEach(async (option: any) => {
     if (option.voter_count == 1) {
       if (isNaN(Number(option.text))) {
         console.log('update consoleType');
@@ -105,5 +105,5 @@ async function poll() {
   }
 }
 
-await init();
-await poll();
+init();
+poll();

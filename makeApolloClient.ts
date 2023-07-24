@@ -1,8 +1,12 @@
-const { ApolloClient, InMemoryCache, HttpLink, split } = pkg;
-import pkg from '@apollo/client/core/core.cjs';
-import { getMainDefinition } from '@apollo/client/utilities/utilities.cjs';
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+  split,
+} from '@apollo/client/core';
+import { getMainDefinition } from '@apollo/client/utilities';
 import fetch from 'cross-fetch';
-import { WebSocketLink } from '@apollo/client/link/ws/ws.cjs';
+import { WebSocketLink } from '@apollo/client/link/ws';
 import { SubscriptionClient } from 'subscriptions-transport-ws/dist/client.js';
 import dotenv from 'dotenv';
 import ws from 'ws';
@@ -20,7 +24,7 @@ function getHttpLink() {
 function getWssLink() {
   return new WebSocketLink(
     new SubscriptionClient(
-      process.env.API_WS_URL,
+      process.env.API_WS_URL!,
       {
         reconnect: true,
         connectionParams: {
@@ -34,9 +38,9 @@ function getWssLink() {
   );
 }
 
-function getSplittedLink(httpLink, wsLink) {
+function getSplittedLink(httpLink: any, wsLink: any) {
   const splitLink = split(
-    ({ query }) => {
+    ({ query }: any) => {
       const definition = getMainDefinition(query);
       return (
         definition.kind === 'OperationDefinition' &&

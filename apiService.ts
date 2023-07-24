@@ -120,7 +120,7 @@ const UPDATE_ADVERT_BY_PK = gql`
 class ApiService {
   client;
 
-  constructor(client) {
+  constructor(client: any) {
     this.client = client;
   }
 
@@ -173,7 +173,7 @@ class ApiService {
     }
   };
 
-  createChatId = async (chatId) => {
+  createChatId = async (chatId: any) => {
     try {
       await this.client.mutate({
         mutation: CREATE_CHAT_ID,
@@ -197,7 +197,7 @@ class ApiService {
     }
   };
 
-  updateAdvertByPk = async (data) => {
+  updateAdvertByPk = async (data: any) => {
     try {
       await this.client.mutate({
         mutation: UPDATE_ADVERT_BY_PK,
