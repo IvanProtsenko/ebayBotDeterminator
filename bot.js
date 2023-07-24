@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
 import { apiService } from './apiService.js';
+import express from 'express';
 
 dotenv.config();
+const app = express();
 
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 let chatIds = [259567367, 348494653, 1629479461];
@@ -47,98 +49,80 @@ bot.on('poll', (msg) => {
 });
 
 async function poll() {
-  while (true) {
-    try {
-      const adverts = await apiService.getPollingAdverts();
-      for (let i = 0; i < adverts.length; i++) {
-        await new Promise((r) => setTimeout(r, 1000));
-        if (!adverts[i].controllersCount && !adverts[i].consoleGeneration) {
-          chatIds.forEach(async (chatId) => {
-            await bot.sendMessage(chatId, adverts[i].link);
-            await bot.sendPoll(
-              chatId,
-              `${adverts[i].adItemId}\nСколько контроллеров?`,
-              ['0', '1', '2', '3', '4'],
-              { allows_multiple_answers: false }
-            );
-            await bot.sendPoll(
-              chatId,
-              `${adverts[i].adItemId}\nТип консоли?`,
-              ['NOT_PS4', 'FAT500', 'FAT1000', 'SLIM500', 'SLIM1000', 'PRO'],
-              { allows_multiple_answers: false }
-            );
-          });
-        } else if (
-          !adverts[i].controllersCount &&
-          adverts[i].consoleGeneration != 'FAT'
-        ) {
-          chatIds.forEach(async (chatId) => {
-            await bot.sendMessage(chatId, adverts[i].link);
-            await bot.sendPoll(
-              chatId,
-              `${adverts[i].adItemId}\nСколько контроллеров?`,
-              ['0', '1', '2', '3'],
-              { allows_multiple_answers: false }
-            );
-          });
-        } else if (!adverts[i].consoleGeneration) {
-          chatIds.forEach(async (chatId) => {
-            await bot.sendMessage(chatId, adverts[i].link);
-            await bot.sendPoll(
-              chatId,
-              `${adverts[i].adItemId}\nТип консоли?`,
-              ['FAT', 'SLIM', 'PRO', 'NOT_PS4'],
-              { allows_multiple_answers: false }
-            );
-          });
-        }
-        await apiService.updateAdvertByPk({
-          adItemId: adverts[i].adItemId,
-          status: 'На распознавании',
+  try {
+    const adverts = await apiService.getPollingAdverts();
+    for (let i = 0; i < adverts.length; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
+      if (!adverts[i].controllersCount && !adverts[i].consoleGeneration) {
+        chatIds.forEach(async (chatId) => {
+          await bot.sendMessage(chatId, adverts[i].link);
+          await bot.sendPoll(
+            chatId,
+            `${adverts[i].adItemId}\nСколько контроллеров?`,
+            ['0', '1', '2', '3', '4'],
+            { allows_multiple_answers: false }
+          );
+          await bot.sendPoll(
+            chatId,
+            `${adverts[i].adItemId}\nТип консоли?`,
+            ['NOT_PS4', 'FAT500', 'FAT1000', 'SLIM500', 'SLIM1000', 'PRO'],
+            { allows_multiple_answers: false }
+          );
+        });
+      } else if (
+        !adverts[i].controllersCount &&
+        adverts[i].consoleGeneration != 'FAT'
+      ) {
+        chatIds.forEach(async (chatId) => {
+          await bot.sendMessage(chatId, adverts[i].link);
+          await bot.sendPoll(
+            chatId,
+            `${adverts[i].adItemId}\nСколько контроллеров?`,
+            ['0', '1', '2', '3'],
+            { allows_multiple_answers: false }
+          );
+        });
+      } else if (!adverts[i].consoleGeneration) {
+        chatIds.forEach(async (chatId) => {
+          await bot.sendMessage(chatId, adverts[i].link);
+          await bot.sendPoll(
+            chatId,
+            `${adverts[i].adItemId}\nТип консоли?`,
+            ['FAT', 'SLIM', 'PRO', 'NOT_PS4'],
+            { allows_multiple_answers: false }
+          );
         });
       }
-      await apiService.reload();
-    } catch (err) {
-      console.log(err);
+      await apiService.updateAdvertByPk({
+        adItemId: adverts[i].adItemId,
+        status: 'На распознавании',
+      });
     }
-    await new Promise((r) => setTimeout(r, 60000));
+    await apiService.reload();
+  } catch (err) {
+    console.log(err);
   }
 }
 
-// const observer = client.subscribe({
-//   query: SUBSCRIBE_ADVERTS,
-// });
-// observer.subscribe({
-//   async next(data) {
-//     const advert = data.data.Adverts[0]
-//     console.log(advert)
-//     console.log('latest: ' + Date.parse(latestAdvertCreated))
-//     console.log('current: ' + Date.parse(advert.created_at))
-//     if(advert && Date.parse(advert.created_at) > Date.parse(latestAdvertCreated)) {
-//         if(!advert.controllersCount && !advert.consoleGeneration) {
-//             chatIds.forEach(async chatId => {
-//                 await bot.sendMessage(chatId, advert.link)
-//                 bot.sendPoll(chatId, `${advert.adItemId}\nСколько контроллеров?`, ['0', '1', '2', '3'], {allows_multiple_answers: false})
-//                 bot.sendPoll(chatId, `${advert.adItemId}\nТип консоли?`, ['FAT', 'SLIM', 'PRO', 'NOT_PS4'], {allows_multiple_answers: false})
-//             })
-//         } else if(!advert.controllersCount && advert.consoleGeneration != 'FAT') {
-//             chatIds.forEach(async chatId => {
-//                 await bot.sendMessage(chatId, advert.link)
-//                 bot.sendPoll(chatId, `${advert.adItemId}\nСколько контроллеров?`, ['0', '1', '2', '3'], {allows_multiple_answers: false})
-//             })
-//         } else if(!advert.consoleGeneration) {
-//             chatIds.forEach(async chatId => {
-//                 await bot.sendMessage(chatId, advert.link)
-//                 bot.sendPoll(chatId, `${advert.adItemId}\nТип консоли?`, ['FAT', 'SLIM', 'PRO', 'NOT_PS4'], {allows_multiple_answers: false})
-//             })
-//         }
-//         latestAdvertCreated = advert.created_at
-//     }
-//   },
-//   error(err) {
-//     console.log(err);
-//   },
-// });
+async function runInCycle() {
+  await init();
+  while (true) {
+    await poll();
+    await new Promise((r) => setTimeout(r, 5 * 60 * 1000));
+  }
+}
 
-await init();
-await poll();
+async function run() {
+  const port = 3000;
+
+  app.get('/', async (req, res) => {
+    res.send('Hello World!');
+  });
+
+  app.listen(port, async () => {
+    console.log(`Example app listening on port ${port}`);
+    await runInCycle();
+  });
+}
+
+run();
