@@ -29,7 +29,7 @@ const GET_ADVERTS = gql`
 
 const GET_LATEST_ADVERTS = gql`
   query GetLatestAdverts {
-    Adverts(order_by: {created_at: desc}) {
+    Adverts(order_by: { created_at: desc }) {
       adItemId
       buyNowAllowed
       consoleGeneration
@@ -50,7 +50,18 @@ const GET_LATEST_ADVERTS = gql`
       tradeAllowed
     }
   }
-`
+`;
+
+const GET_POLLING_ADVERTS = gql`
+  query GetPollingAdverts {
+    Adverts(where: { status: { _eq: "Ручное распознавание" } }) {
+      adItemId
+      consoleGeneration
+      controllersCount
+      link
+    }
+  }
+`;
 
 const GET_ALL_MESSAGES = gql`
   query GetMessages {
@@ -58,30 +69,25 @@ const GET_ALL_MESSAGES = gql`
       id
     }
   }
-`
+`;
 
 const SUBSCRIBE_ADVERTS = gql`
   subscription MySubscription {
-    Adverts(where: {status: {_eq: "Ручное распознавание"}}, order_by: {created_at: desc}) {
+    Adverts(
+      where: { status: { _eq: "Ручное распознавание" } }
+      order_by: { created_at: desc }
+    ) {
       adItemId
       buyNowAllowed
       consoleGeneration
       controllersCount
-      created_at
       deliveryAllowed
-      description
       hasDefect
-      initialResponse
       link
-      location
       offerAllowed
-      price
-      publishDate
-      recommendedPrice
       status
       title
       tradeAllowed
-      statusDescription
       viewed
     }
   }
@@ -93,23 +99,23 @@ const GET_CHAT_IDS = gql`
       id
     }
   }
-`
+`;
 
 const CREATE_CHAT_ID = gql`
   mutation CreateChatId($id: bigint) {
-    insert_chat_ids_one(object: {id: $id}) {
+    insert_chat_ids_one(object: { id: $id }) {
       id
     }
   }
-`
+`;
 
 const UPDATE_ADVERT_BY_PK = gql`
   mutation MyMutation2($id: bigint!, $_set: Adverts_set_input) {
-    update_Adverts_by_pk(pk_columns: {adItemId: $id}, _set: $_set) {
+    update_Adverts_by_pk(pk_columns: { adItemId: $id }, _set: $_set) {
       adItemId
     }
   }
-`
+`;
 
 class ApiService {
   client;
@@ -117,6 +123,11 @@ class ApiService {
   constructor(client) {
     this.client = client;
   }
+
+  reload = async () => {
+    const client = makeApolloClient();
+    this.client = client;
+  };
 
   getAdverts = async () => {
     try {
@@ -136,7 +147,18 @@ class ApiService {
       });
       return result.data.Adverts;
     } catch (err) {
-      console.log('ERROR getAdverts:', err);
+      console.log('ERROR getLatestAdverts:', err);
+    }
+  };
+
+  getPollingAdverts = async () => {
+    try {
+      const result = await this.client.query({
+        query: GET_POLLING_ADVERTS,
+      });
+      return result.data.Adverts;
+    } catch (err) {
+      console.log('ERROR getPollingAdverts:', err);
     }
   };
 
@@ -151,20 +173,20 @@ class ApiService {
     }
   };
 
-  createChatId = async(chatId) => {
+  createChatId = async (chatId) => {
     try {
       await this.client.mutate({
         mutation: CREATE_CHAT_ID,
         variables: {
-          id: chatId
-        }
+          id: chatId,
+        },
       });
     } catch (err) {
       console.log('ERROR createChatId:', err);
     }
-  }
+  };
 
-  getChatIds = async() => {
+  getChatIds = async () => {
     try {
       const result = await this.client.query({
         query: GET_CHAT_IDS,
@@ -173,7 +195,7 @@ class ApiService {
     } catch (err) {
       console.log('ERROR getChatIds:', err);
     }
-  }
+  };
 
   updateAdvertByPk = async (data) => {
     try {
@@ -181,8 +203,8 @@ class ApiService {
         mutation: UPDATE_ADVERT_BY_PK,
         variables: {
           id: data.adItemId,
-          _set: data
-        }
+          _set: data,
+        },
       });
     } catch (err) {
       console.log('ERROR updateAdvertByPk:', err);
@@ -190,6 +212,6 @@ class ApiService {
   };
 }
 
-const client = makeApolloClient()
+const client = makeApolloClient();
 const apiService = new ApiService(client);
 export { client, apiService, SUBSCRIBE_ADVERTS };

@@ -1,79 +1,144 @@
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
-import { apiService, client, SUBSCRIBE_ADVERTS } from './apiService.js';
+import { apiService } from './apiService.js';
 
-dotenv.config()
+dotenv.config();
 
-const bot = new TelegramBot(process.env.BOT_TOKEN, {polling: true});
-let chatIds = [259567367, 348494653]
-let latestAdvertId = null
+const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
+let chatIds = [259567367, 348494653, 1629479461];
+let latestAdvertCreated = 0;
 
 async function init() {
-//   chatIds = await apiService.getChatIds()
-//   chatIds = chatIds.map(chatId => chatId.id)
-    const adverts = await apiService.getLatestAdverts()
-    latestAdvertId = adverts[0].adItemId
+  //   chatIds = await apiService.getChatIds()
+  //   chatIds = chatIds.map(chatId => chatId.id)
+  const adverts = await apiService.getLatestAdverts();
+  latestAdvertCreated = adverts[0].created_at;
 }
-
-bot.on('poll', (msg) => {
-    const id = msg.question.split('\n')[0]
-    msg.options.forEach(async option => {
-        if(option.voter_count == 1) {
-            if(Number(option.text)) {
-                console.log('update controllers count')
-                await apiService.updateAdvertByPk({adItemId: id, controllersCount: option.text, status: 'Решение'})
-            } else { 
-                console.log('update consoleType')
-                await apiService.updateAdvertByPk({adItemId: id, consoleGeneration: option.text, status: 'Решение'})
-            }
-        }
-    });
-});
 
 bot.onText(/\/subscribe/, async (msg, match) => {
   const chatId = msg.chat.id;
-  const link = "https://www.kleinanzeigen.de/s-anzeige/playstation-4-500gb/2451423494-279-1797"
-  const id = "54982895"
-//   await apiService.createChatId(chatId)
-//   chatIds = await apiService.getChatIds()
-//   chatIds = chatIds.map(chatId => chatId.id)
-//   bot.sendMessage(chatId, 'You are subscribed for messages');
-  bot.sendMessage(chatId, link)
-  bot.sendPoll(chatId, `${id}\nСколько контроллеров?`, ['0', '1', '2', '3'], {allows_multiple_answers: false})
-  bot.sendPoll(chatId, `${id}\nТип консоли?`, ['FAT', 'SLIM', 'PRO'], {allows_multiple_answers: false})
+  await apiService.createChatId(chatId);
+  chatIds = await apiService.getChatIds();
+  chatIds = chatIds.map((chatId) => chatId.id);
+  bot.sendMessage(chatId, 'You are subscribed for messages');
 });
 
-const observer = client.subscribe({
-  query: SUBSCRIBE_ADVERTS,
-});
-observer.subscribe({
-  async next(data) {
-    const advert = data.data.Adverts[0]
-    console.log(advert)
-    if(advert && advert.adItemId != latestAdvertId) {
-        latestAdvertId = advert.adItemId
-        if(!advert.controllersCount && !advert.consoleGeneration) {
-            chatIds.forEach(async chatId => {
-                await bot.sendMessage(chatId, advert.link)
-                bot.sendPoll(chatId, `${advert.adItemId}\nСколько контроллеров?`, ['0', '1', '2', '3'], {allows_multiple_answers: false})
-                bot.sendPoll(chatId, `${advert.adItemId}\nТип консоли?`, ['FAT', 'SLIM', 'PRO', 'NOT_PS4'], {allows_multiple_answers: false})
-            })
-        } else if(!advert.controllersCount && advert.consoleGeneration != 'FAT') {
-            chatIds.forEach(async chatId => {
-                await bot.sendMessage(chatId, advert.link)
-                bot.sendPoll(chatId, `${advert.adItemId}\nСколько контроллеров?`, ['0', '1', '2', '3'], {allows_multiple_answers: false})
-            })
-        } else if(!advert.consoleGeneration) {
-            chatIds.forEach(async chatId => {
-                await bot.sendMessage(chatId, advert.link)
-                bot.sendPoll(chatId, `${advert.adItemId}\nТип консоли?`, ['FAT', 'SLIM', 'PRO', 'NOT_PS4'], {allows_multiple_answers: false})
-            })
-        }
+bot.on('poll', (msg) => {
+  const id = msg.question.split('\n')[0];
+  msg.options.forEach(async (option) => {
+    if (option.voter_count == 1) {
+      if (isNaN(Number(option.text))) {
+        console.log('update consoleType');
+        await apiService.updateAdvertByPk({
+          adItemId: id,
+          consoleGeneration: option.text,
+          status: 'Решение',
+        });
+      } else {
+        console.log('update controllers count');
+        await apiService.updateAdvertByPk({
+          adItemId: id,
+          controllersCount: option.text,
+          status: 'Решение',
+        });
+      }
     }
-  },
-  error(err) {
-    console.log(err);
-  },
+  });
 });
 
-await init()
+async function poll() {
+  while (true) {
+    try {
+      const adverts = await apiService.getPollingAdverts();
+      for (let i = 0; i < adverts.length; i++) {
+        await new Promise((r) => setTimeout(r, 1000));
+        if (!adverts[i].controllersCount && !adverts[i].consoleGeneration) {
+          chatIds.forEach(async (chatId) => {
+            await bot.sendMessage(chatId, adverts[i].link);
+            await bot.sendPoll(
+              chatId,
+              `${adverts[i].adItemId}\nСколько контроллеров?`,
+              ['0', '1', '2', '3', '4'],
+              { allows_multiple_answers: false }
+            );
+            await bot.sendPoll(
+              chatId,
+              `${adverts[i].adItemId}\nТип консоли?`,
+              ['NOT_PS4', 'FAT500', 'FAT1000', 'SLIM500', 'SLIM1000', 'PRO'],
+              { allows_multiple_answers: false }
+            );
+          });
+        } else if (
+          !adverts[i].controllersCount &&
+          adverts[i].consoleGeneration != 'FAT'
+        ) {
+          chatIds.forEach(async (chatId) => {
+            await bot.sendMessage(chatId, adverts[i].link);
+            await bot.sendPoll(
+              chatId,
+              `${adverts[i].adItemId}\nСколько контроллеров?`,
+              ['0', '1', '2', '3'],
+              { allows_multiple_answers: false }
+            );
+          });
+        } else if (!adverts[i].consoleGeneration) {
+          chatIds.forEach(async (chatId) => {
+            await bot.sendMessage(chatId, adverts[i].link);
+            await bot.sendPoll(
+              chatId,
+              `${adverts[i].adItemId}\nТип консоли?`,
+              ['FAT', 'SLIM', 'PRO', 'NOT_PS4'],
+              { allows_multiple_answers: false }
+            );
+          });
+        }
+        await apiService.updateAdvertByPk({
+          adItemId: adverts[i].adItemId,
+          status: 'На распознавании',
+        });
+      }
+      await apiService.reload();
+    } catch (err) {
+      console.log(err);
+    }
+    await new Promise((r) => setTimeout(r, 60000));
+  }
+}
+
+// const observer = client.subscribe({
+//   query: SUBSCRIBE_ADVERTS,
+// });
+// observer.subscribe({
+//   async next(data) {
+//     const advert = data.data.Adverts[0]
+//     console.log(advert)
+//     console.log('latest: ' + Date.parse(latestAdvertCreated))
+//     console.log('current: ' + Date.parse(advert.created_at))
+//     if(advert && Date.parse(advert.created_at) > Date.parse(latestAdvertCreated)) {
+//         if(!advert.controllersCount && !advert.consoleGeneration) {
+//             chatIds.forEach(async chatId => {
+//                 await bot.sendMessage(chatId, advert.link)
+//                 bot.sendPoll(chatId, `${advert.adItemId}\nСколько контроллеров?`, ['0', '1', '2', '3'], {allows_multiple_answers: false})
+//                 bot.sendPoll(chatId, `${advert.adItemId}\nТип консоли?`, ['FAT', 'SLIM', 'PRO', 'NOT_PS4'], {allows_multiple_answers: false})
+//             })
+//         } else if(!advert.controllersCount && advert.consoleGeneration != 'FAT') {
+//             chatIds.forEach(async chatId => {
+//                 await bot.sendMessage(chatId, advert.link)
+//                 bot.sendPoll(chatId, `${advert.adItemId}\nСколько контроллеров?`, ['0', '1', '2', '3'], {allows_multiple_answers: false})
+//             })
+//         } else if(!advert.consoleGeneration) {
+//             chatIds.forEach(async chatId => {
+//                 await bot.sendMessage(chatId, advert.link)
+//                 bot.sendPoll(chatId, `${advert.adItemId}\nТип консоли?`, ['FAT', 'SLIM', 'PRO', 'NOT_PS4'], {allows_multiple_answers: false})
+//             })
+//         }
+//         latestAdvertCreated = advert.created_at
+//     }
+//   },
+//   error(err) {
+//     console.log(err);
+//   },
+// });
+
+await init();
+await poll();
