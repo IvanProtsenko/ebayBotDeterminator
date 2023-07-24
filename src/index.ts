@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
-import { apiService } from '../apiService.js';
+import { apiService } from './../services/apiService.js';
 
 dotenv.config();
 
