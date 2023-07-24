@@ -7,7 +7,7 @@
   "scripts": {
     "test": "test",
     "build": "tsc -p .",
-    "start": "node dist/src/index.js"
+    "start": "node ./dist/src/index"
   },
   "keywords": [],
   "author": "",
