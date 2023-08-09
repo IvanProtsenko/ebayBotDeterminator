@@ -63,6 +63,14 @@ const GET_POLLING_ADVERTS = gql`
   }
 `;
 
+const GET_ADVERT_BY_ID = gql`
+  query GetAdvertById($adItemId: Int) {
+    Adverts_by_pk(adItemId: $adItemId) {
+      status
+    }
+  }
+`;
+
 const GET_ALL_MESSAGES = gql`
   query GetMessages {
     Messages {
@@ -137,6 +145,20 @@ class ApiService {
       return result.data.Adverts;
     } catch (err) {
       console.log('ERROR getAdverts:', err);
+    }
+  };
+
+  getAdvertById = async (adItemId) => {
+    try {
+      const result = await this.client.query({
+        query: GET_ADVERT_BY_ID,
+        variables: {
+          adItemId,
+        },
+      });
+      return result.data.Adverts_by_pk;
+    } catch (err) {
+      console.log('ERROR getAdvertById:', err);
     }
   };
 
