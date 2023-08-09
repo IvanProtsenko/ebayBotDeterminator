@@ -53,7 +53,8 @@ async function poll() {
       for (let i = 0; i < adverts.length; i++) {
         await new Promise((r) => setTimeout(r, 1000));
         if (!adverts[i].controllersCount && !adverts[i].consoleGeneration) {
-          chatIds.forEach(async (chatId) => {
+          for (let i = 0; i < chatIds.length; i++) {
+            let chatId = chatIds[i];
             await bot.sendMessage(chatId, adverts[i].link);
             await bot.sendPoll(
               chatId,
@@ -67,12 +68,13 @@ async function poll() {
               ['NOT_PS4', 'FAT500', 'FAT1000', 'SLIM500', 'SLIM1000', 'PRO'],
               { allows_multiple_answers: false }
             );
-          });
+          }
         } else if (
           !adverts[i].controllersCount &&
           adverts[i].consoleGeneration != 'FAT'
         ) {
-          chatIds.forEach(async (chatId) => {
+          for (let i = 0; i < chatIds.length; i++) {
+            let chatId = chatIds[i];
             await bot.sendMessage(chatId, adverts[i].link);
             await bot.sendPoll(
               chatId,
@@ -80,9 +82,10 @@ async function poll() {
               ['0', '1', '2', '3'],
               { allows_multiple_answers: false }
             );
-          });
+          }
         } else if (!adverts[i].consoleGeneration) {
-          chatIds.forEach(async (chatId) => {
+          for (let i = 0; i < chatIds.length; i++) {
+            let chatId = chatIds[i];
             await bot.sendMessage(chatId, adverts[i].link);
             await bot.sendPoll(
               chatId,
@@ -90,7 +93,7 @@ async function poll() {
               ['FAT', 'SLIM', 'PRO', 'NOT_PS4'],
               { allows_multiple_answers: false }
             );
-          });
+          }
         }
         await apiService.updateAdvertByPk({
           adItemId: adverts[i].adItemId,
