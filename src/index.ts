@@ -15,13 +15,13 @@ async function init() {
   latestAdvertCreated = adverts[0].created_at;
 }
 
-bot.onText(/\/subscribe/, async (msg: any, match: any) => {
-  const chatId = msg.chat.id;
-  await apiService.createChatId(chatId);
-  const chatIdsEntity = await apiService.getChatIds();
-  chatIds = chatIdsEntity.map((chatId: any) => chatId.id);
-  bot.sendMessage(chatId, 'You are subscribed for messages');
-});
+// bot.onText(/\/subscribe/, async (msg: any, match: any) => {
+//   const chatId = msg.chat.id;
+//   await apiService.createChatId(chatId);
+//   const chatIdsEntity = await apiService.getChatIds();
+//   chatIds = chatIdsEntity.map((chatId: any) => chatId.id);
+//   bot.sendMessage(chatId, 'You are subscribed for messages');
+// });
 
 bot.on('message', (msg: any) => {
   const id = msg.question.split('\n')[0];
