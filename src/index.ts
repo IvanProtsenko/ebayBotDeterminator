@@ -5,7 +5,7 @@ import { apiService } from './../services/apiService.js';
 dotenv.config();
 
 const bot = new TelegramBot(process.env.BOT_TOKEN!, { polling: true });
-let chatIds = [259567367, 348494653, 1629479461];
+let chatIds = [259567367, 348494653, 1629479461, 945138731];
 let latestAdvertCreated = 0;
 
 async function init() {
