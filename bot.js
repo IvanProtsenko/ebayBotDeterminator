@@ -127,7 +127,7 @@ async function poll() {
 
 async function runInCycle() {
   await init();
-  await sendTestMessage();
+  // await sendTestMessage();
   while (true) {
     await poll();
     await new Promise((r) => setTimeout(r, 5 * 60 * 1000));
