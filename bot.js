@@ -30,7 +30,7 @@ bot.on('poll', (msg) => {
   msg.options.forEach(async (option) => {
     if (option.voter_count == 1) {
       const advert = await apiService.getAdvertById(id);
-      if (advert.status == 'На распознавании')
+      if (advert.status == 'На распознавании') {
         if (isNaN(Number(option.text))) {
           console.log('update consoleType');
           await apiService.updateAdvertByPk({
@@ -46,9 +46,32 @@ bot.on('poll', (msg) => {
             status: 'Решение',
           });
         }
+        chatIds.forEach(async (chatId) => {
+          // delete poll
+          await bot.deleteMessage(chatId, msg.id);
+        });
+      }
     }
   });
 });
+
+async function sendTestMessage() {
+  chatIds.forEach(async (chatId) => {
+    await bot.sendMessage(chatId, 'test message');
+    await bot.sendPoll(
+      chatId,
+      `${adverts[i].adItemId}\nTest question?`,
+      ['0', '1', '2', '3', '4'],
+      { allows_multiple_answers: false }
+    );
+    await bot.sendPoll(
+      chatId,
+      `${adverts[i].adItemId}\nTest question 2?`,
+      ['0', '1', '2', '3', '4'],
+      { allows_multiple_answers: false }
+    );
+  });
+}
 
 async function poll() {
   try {
@@ -108,6 +131,7 @@ async function poll() {
 
 async function runInCycle() {
   await init();
+  await sendTestMessage();
   while (true) {
     await poll();
     await new Promise((r) => setTimeout(r, 5 * 60 * 1000));

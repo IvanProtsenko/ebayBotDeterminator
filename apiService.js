@@ -125,6 +125,38 @@ const UPDATE_ADVERT_BY_PK = gql`
   }
 `;
 
+const GET_CONVERSATIONS_WITH_MESSAGES = gql`
+  query ConversationsWithMessages {
+    Conversations {
+      adId
+      adStatus
+      attachmentsEnabled
+      buyNowPossible
+      id
+      numUnread
+      role
+      sellerName
+      customStatus
+      manualUpdatedDate
+      customUnread
+      Messages(order_by: { receivedDate: asc }) {
+        receivedDate
+      }
+    }
+  }
+`;
+
+const UPDATE_CONVERSATION_RECEIVED_TIME = gql`
+  mutation UpdateConvReceivedDate($id: String!, $customLastUpdate: String) {
+    update_Conversations_by_pk(
+      pk_columns: { id: $id }
+      _set: { customLastUpdate: $customLastUpdate }
+    ) {
+      id
+    }
+  }
+`;
+
 class ApiService {
   client;
 
@@ -170,6 +202,31 @@ class ApiService {
       return result.data.Adverts;
     } catch (err) {
       console.log('ERROR getLatestAdverts:', err);
+    }
+  };
+
+  getConversationsWithMessages = async () => {
+    try {
+      const result = await this.client.query({
+        query: GET_CONVERSATIONS_WITH_MESSAGES,
+      });
+      return result.data.Conversations;
+    } catch (err) {
+      console.log('ERROR getConversationsWithMessage:', err);
+    }
+  };
+
+  updateConversationLatestDate = async (id, date) => {
+    try {
+      await this.client.mutate({
+        mutation: UPDATE_CONVERSATION_RECEIVED_TIME,
+        variables: {
+          id,
+          customLastUpdate: date,
+        },
+      });
+    } catch (err) {
+      console.log('ERROR updateConversationLatestDate:', err);
     }
   };
 
