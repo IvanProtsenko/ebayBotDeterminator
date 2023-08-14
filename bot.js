@@ -11,19 +11,19 @@ let chatIds = [259567367, 348494653, 1629479461, 945138731];
 let latestAdvertCreated = 0;
 
 async function init() {
-  //   chatIds = await apiService.getChatIds()
-  //   chatIds = chatIds.map(chatId => chatId.id)
+  chatIds = await apiService.getChatIds();
+  chatIds = chatIds.map((chatId) => chatId.id);
   const adverts = await apiService.getLatestAdverts();
   latestAdvertCreated = adverts[0].created_at;
 }
 
-// bot.onText(/\/subscribe/, async (msg, match) => {
-//   const chatId = msg.chat.id;
-//   await apiService.createChatId(chatId);
-//   chatIds = await apiService.getChatIds();
-//   chatIds = chatIds.map((chatId) => chatId.id);
-//   bot.sendMessage(chatId, 'You are subscribed for messages');
-// });
+bot.onText(/\/subscribe/, async (msg, match) => {
+  const chatId = msg.chat.id;
+  await apiService.createChatId(chatId);
+  chatIds = await apiService.getChatIds();
+  chatIds = chatIds.map((chatId) => chatId.id);
+  bot.sendMessage(chatId, 'You are subscribed for messages');
+});
 
 bot.on('poll', (msg) => {
   const id = msg.question.split('\n')[0];
