@@ -55,19 +55,19 @@ bot.on('poll', (msg) => {
   });
 });
 
-async function sendTestMessage() {
-  chatIds.forEach(async (chatId) => {
-    await bot.sendMessage(chatId, 'test message');
-    await bot.sendPoll(chatId, `Test question`, ['0', '1', '2', '3', '4'], {
-      allows_multiple_answers: false,
-    });
-    await bot.sendPoll(chatId, `Test question 2`, ['0', '1', '2', '3', '4'], {
-      allows_multiple_answers: false,
-    });
-  });
+// async function sendTestMessage() {
+//   chatIds.forEach(async (chatId) => {
+//     await bot.sendMessage(chatId, 'test message');
+//     await bot.sendPoll(chatId, `Test question`, ['0', '1', '2', '3', '4'], {
+//       allows_multiple_answers: false,
+//     });
+//     await bot.sendPoll(chatId, `Test question 2`, ['0', '1', '2', '3', '4'], {
+//       allows_multiple_answers: false,
+//     });
+//   });
 
-  return;
-}
+//   return;
+// }
 
 async function poll() {
   try {
@@ -127,7 +127,6 @@ async function poll() {
 
 async function runInCycle() {
   await init();
-  // await sendTestMessage();
   while (true) {
     await poll();
     await new Promise((r) => setTimeout(r, 5 * 60 * 1000));
