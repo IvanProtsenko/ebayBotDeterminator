@@ -64,7 +64,7 @@ const GET_POLLING_ADVERTS = gql`
 `;
 
 const GET_ADVERT_BY_ID = gql`
-  query GetAdvertById($adItemId: Int) {
+  query GetAdvertById($adItemId: bigint!) {
     Adverts_by_pk(adItemId: $adItemId) {
       status
     }
