@@ -46,10 +46,10 @@ bot.on('poll', (msg) => {
             status: 'Решение',
           });
         }
-        chatIds.forEach(async (chatId) => {
-          // delete poll
-          await bot.deleteMessage(chatId, msg.id);
-        });
+        // chatIds.forEach(async (chatId) => {
+        //   // delete poll
+        //   await bot.deleteMessage(chatId, msg.id);
+        // });
       }
     }
   });
