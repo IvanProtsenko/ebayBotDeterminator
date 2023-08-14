@@ -29,27 +29,29 @@ bot.on('poll', (msg) => {
   const id = msg.question.split('\n')[0];
   msg.options.forEach(async (option) => {
     if (option.voter_count == 1) {
-      const advert = await apiService.getAdvertById(id);
-      if (advert.status == 'На распознавании') {
-        if (isNaN(Number(option.text))) {
-          console.log('update consoleType');
-          await apiService.updateAdvertByPk({
-            adItemId: id,
-            consoleGeneration: option.text,
-            status: 'Решение',
-          });
-        } else {
-          console.log('update controllers count');
-          await apiService.updateAdvertByPk({
-            adItemId: id,
-            controllersCount: option.text,
-            status: 'Решение',
-          });
+      if (typeof id == 'number') {
+        const advert = await apiService.getAdvertById(id);
+        if (advert.status == 'На распознавании') {
+          if (isNaN(Number(option.text))) {
+            console.log('update consoleType');
+            await apiService.updateAdvertByPk({
+              adItemId: id,
+              consoleGeneration: option.text,
+              status: 'Решение',
+            });
+          } else {
+            console.log('update controllers count');
+            await apiService.updateAdvertByPk({
+              adItemId: id,
+              controllersCount: option.text,
+              status: 'Решение',
+            });
+          }
+          // chatIds.forEach(async (chatId) => {
+          //   // delete poll
+          //   await bot.deleteMessage(chatId, msg.id);
+          // });
         }
-        // chatIds.forEach(async (chatId) => {
-        //   // delete poll
-        //   await bot.deleteMessage(chatId, msg.id);
-        // });
       }
     }
   });
