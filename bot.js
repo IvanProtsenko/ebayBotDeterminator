@@ -56,22 +56,14 @@ bot.on('poll', (msg) => {
 });
 
 async function sendTestMessage() {
-  await new Promise((r) => setTimeout(r, 1000));
   chatIds.forEach(async (chatId) => {
-    await new Promise((r) => setTimeout(r, 200));
     await bot.sendMessage(chatId, 'test message');
-    await bot.sendPoll(
-      chatId,
-      `${adverts[i].adItemId}\nTest question?`,
-      ['0', '1', '2', '3', '4'],
-      { allows_multiple_answers: false }
-    );
-    await bot.sendPoll(
-      chatId,
-      `${adverts[i].adItemId}\nTest question 2?`,
-      ['0', '1', '2', '3', '4'],
-      { allows_multiple_answers: false }
-    );
+    await bot.sendPoll(chatId, `Test question`, ['0', '1', '2', '3', '4'], {
+      allows_multiple_answers: false,
+    });
+    await bot.sendPoll(chatId, `Test question 2`, ['0', '1', '2', '3', '4'], {
+      allows_multiple_answers: false,
+    });
   });
 
   return;
