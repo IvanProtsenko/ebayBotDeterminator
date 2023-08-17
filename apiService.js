@@ -57,6 +57,7 @@ const GET_POLLING_ADVERTS = gql`
     Adverts(where: { status: { _eq: "Ручное распознавание" } }) {
       adItemId
       consoleGeneration
+      consoleGenerationRecognizer
       controllersCount
       link
     }

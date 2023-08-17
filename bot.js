@@ -86,8 +86,8 @@ async function poll() {
       await new Promise((r) => setTimeout(r, 1000));
       chatIds.forEach(async (chatId) => {
         await bot.sendMessage(chatId, adverts[i].link);
-        const textForGeneration = adverts[i].consoleGeneration
-          ? `${adverts[i].adItemId}\nСейчас выбрано: ===${adverts[i].consoleGeneration}===\nТип консоли?`
+        const textForGeneration = adverts[i].consoleGenerationRecognizer
+          ? `${adverts[i].adItemId}\nСейчас выбрано: ===${adverts[i].consoleGenerationRecognizer}===\nТип консоли?`
           : `${adverts[i].adItemId}\nТип консоли?`;
         const textForControllers = adverts[i].controllersCount
           ? `${adverts[i].adItemId}\nСейчас выбрано: ===${adverts[i].controllersCount}===\nСколько контроллеров?`
