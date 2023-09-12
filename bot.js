@@ -56,34 +56,16 @@ bot.on('poll', (msg) => {
         }
       } else {
         console.log(msg.id);
-        // chatIds.forEach(async (chatId) => {
-        //   // delete poll
-        //   await bot.deleteMessage(chatId, msg.id);
-        // });
       }
     }
   });
 });
 
-// async function sendTestMessage() {
-//   chatIds.forEach(async (chatId) => {
-//     await bot.sendMessage(chatId, 'test message');
-//     await bot.sendPoll(chatId, `Test question`, ['0', '1', '2', '3', '4'], {
-//       allows_multiple_answers: false,
-//     });
-//     await bot.sendPoll(chatId, `Test question 2`, ['0', '1', '2', '3', '4'], {
-//       allows_multiple_answers: false,
-//     });
-//   });
-
-//   return;
-// }
-
 async function poll() {
   try {
     const adverts = await apiService.getPollingAdverts();
     for (let i = 0; i < adverts.length; i++) {
-      await new Promise((r) => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 3000));
       chatIds.forEach(async (chatId) => {
         await bot.sendMessage(chatId, adverts[i].link);
         const textForGeneration = adverts[i].consoleGenerationRecognizer
@@ -126,7 +108,7 @@ async function runInCycle() {
   // await sendTestMessage();
   while (true) {
     await poll();
-    await new Promise((r) => setTimeout(r, 5 * 60 * 1000));
+    await new Promise((r) => setTimeout(r, 3 * 60 * 1000));
   }
 }
 
