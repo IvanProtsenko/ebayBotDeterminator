@@ -9,6 +9,9 @@ const app = express();
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 let chatIds = [259567367, 348494653, 1629479461, 945138731, 497969967];
 let latestAdvertCreated = 0;
+let adverts;
+let textForGeneration;
+let textForControllers;
 
 async function init() {
   chatIds = await apiService.getChatIds();
@@ -63,15 +66,15 @@ bot.on('poll', (msg) => {
 
 async function poll() {
   try {
-    const adverts = await apiService.getPollingAdverts();
+    adverts = await apiService.getPollingAdverts();
     for (let i = 0; i < adverts.length; i++) {
       await new Promise((r) => setTimeout(r, 3000));
       chatIds.forEach(async (chatId) => {
         await bot.sendMessage(chatId, adverts[i].link);
-        const textForGeneration = adverts[i].consoleGenerationRecognizer
+        textForGeneration = adverts[i].consoleGenerationRecognizer
           ? `${adverts[i].adItemId}\nСейчас выбрано: ===${adverts[i].consoleGenerationRecognizer}===\nТип консоли?`
           : `${adverts[i].adItemId}\nТип консоли?`;
-        const textForControllers = adverts[i].controllersCount
+        textForControllers = adverts[i].controllersCount
           ? `${adverts[i].adItemId}\nСейчас выбрано: ===${adverts[i].controllersCount}===\nСколько контроллеров?`
           : `${adverts[i].adItemId}\nСколько контроллеров?`;
         await bot.sendPoll(
@@ -105,7 +108,6 @@ async function poll() {
 
 async function runInCycle() {
   await init();
-  // await sendTestMessage();
   while (true) {
     await poll();
     await new Promise((r) => setTimeout(r, 3 * 60 * 1000));
