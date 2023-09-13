@@ -126,6 +126,19 @@ const UPDATE_ADVERT_BY_PK = gql`
   }
 `;
 
+const UPDATE_MANY_ADVERTS_STATUS = gql`
+  mutation UpdateManyAdvertsStatus($ids: [bigint]) {
+    update_Adverts_many(
+      updates: {
+        where: { adItemId: { _in: $ids } }
+        _set: { status: "На распознавании" }
+      }
+    ) {
+      affected_rows
+    }
+  }
+`;
+
 const GET_CONVERSATIONS_WITH_MESSAGES = gql`
   query ConversationsWithMessages {
     Conversations {
@@ -288,6 +301,19 @@ class ApiService {
       });
     } catch (err) {
       console.log('ERROR updateAdvertByPk:', err);
+    }
+  };
+
+  updateAdvertsByPk = async (ids) => {
+    try {
+      await this.client.mutate({
+        mutation: UPDATE_MANY_ADVERTS_STATUS,
+        variables: {
+          ids,
+        },
+      });
+    } catch (err) {
+      console.log('ERROR updateAdvertsByPk:', err);
     }
   };
 }

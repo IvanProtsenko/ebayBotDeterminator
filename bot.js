@@ -13,20 +13,20 @@ let adverts;
 let textForGeneration;
 let textForControllers;
 
-async function init() {
-  chatIds = await apiService.getChatIds();
-  chatIds = chatIds.map((chatId) => chatId.id);
-  const adverts = await apiService.getLatestAdverts();
-  latestAdvertCreated = adverts[0].created_at;
-}
+// async function init() {
+//   chatIds = await apiService.getChatIds();
+//   chatIds = chatIds.map((chatId) => chatId.id);
+//   const adverts = await apiService.getLatestAdverts();
+//   latestAdvertCreated = adverts[0].created_at;
+// }
 
-bot.onText(/\/subscribe/, async (msg, match) => {
-  const chatId = msg.chat.id;
-  await apiService.createChatId(chatId);
-  chatIds = await apiService.getChatIds();
-  chatIds = chatIds.map((chatId) => chatId.id);
-  bot.sendMessage(chatId, 'You are subscribed for messages');
-});
+// bot.onText(/\/subscribe/, async (msg, match) => {
+//   const chatId = msg.chat.id;
+//   await apiService.createChatId(chatId);
+//   chatIds = await apiService.getChatIds();
+//   chatIds = chatIds.map((chatId) => chatId.id);
+//   bot.sendMessage(chatId, 'You are subscribed for messages');
+// });
 
 bot.on('poll', (msg) => {
   const id = Number(msg.question.split('\n')[0]);
@@ -95,11 +95,10 @@ async function poll() {
           ['Да', 'Нет']
         );
       });
-      await apiService.updateAdvertByPk({
-        adItemId: adverts[i].adItemId,
-        status: 'На распознавании',
-      });
     }
+    await apiService.updateAdvertsByPk(
+      adverts.map((advert) => advert.adItemId)
+    );
     await apiService.reload();
   } catch (err) {
     console.log(err);
@@ -107,7 +106,7 @@ async function poll() {
 }
 
 async function runInCycle() {
-  await init();
+  // await init();
   while (true) {
     await poll();
     await new Promise((r) => setTimeout(r, 3 * 60 * 1000));
