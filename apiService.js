@@ -60,6 +60,7 @@ const GET_POLLING_ADVERTS = gql`
       consoleGenerationRecognizer
       controllersCount
       link
+      price
     }
   }
 `;
