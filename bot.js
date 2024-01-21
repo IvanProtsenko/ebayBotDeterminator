@@ -70,7 +70,14 @@ async function poll() {
     for (let i = 0; i < adverts.length; i++) {
       await new Promise((r) => setTimeout(r, 3000));
       chatIds.forEach(async (chatId) => {
-        await bot.sendMessage(chatId, adverts[i].link + '\nЦена: ' + adverts[i].price);
+        await bot.sendMessage(
+          chatId,
+          adverts[i].link +
+            '\nЦена: ' +
+            adverts[i].price +
+            '\n: ' +
+            adverts[i].russian_translationGPT || ''
+        );
         textForGeneration = adverts[i].consoleGenerationRecognizer
           ? `${adverts[i].adItemId}\nСейчас выбрано: ===${adverts[i].consoleGenerationRecognizer}===\nТип консоли?`
           : `${adverts[i].adItemId}\nТип консоли?`;

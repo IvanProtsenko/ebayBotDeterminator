@@ -23,6 +23,7 @@ const GET_ADVERTS = gql`
       status
       title
       tradeAllowed
+      russian_translationGPT
     }
   }
 `;
@@ -48,6 +49,7 @@ const GET_LATEST_ADVERTS = gql`
       status
       title
       tradeAllowed
+      russian_translationGPT
     }
   }
 `;
@@ -61,6 +63,7 @@ const GET_POLLING_ADVERTS = gql`
       controllersCount
       link
       price
+      russian_translationGPT
     }
   }
 `;
@@ -99,6 +102,7 @@ const SUBSCRIBE_ADVERTS = gql`
       title
       tradeAllowed
       viewed
+      russian_translationGPT
     }
   }
 `;
