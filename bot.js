@@ -84,18 +84,12 @@ async function poll() {
         textForControllers = adverts[i].controllersCount
           ? `${adverts[i].adItemId}\nСейчас выбрано: ===${adverts[i].controllersCount}===\nСколько контроллеров?`
           : `${adverts[i].adItemId}\nСколько контроллеров?`;
-        await bot.sendPoll(
-          chatId,
-          textForGeneration,
-          ['NOT_PS4', 'FAT500', 'FAT1000', 'SLIM500', 'SLIM1000', 'PRO'],
-          { allows_multiple_answers: false }
-        );
-        await bot.sendPoll(
-          chatId,
-          textForControllers,
-          ['0', '1', '2', '3', '4'],
-          { allows_multiple_answers: false }
-        );
+        await bot.sendPoll(chatId, textForGeneration, ['NOT_PS4', 'SLIM'], {
+          allows_multiple_answers: false,
+        });
+        await bot.sendPoll(chatId, textForControllers, ['0', '1', '2', '3'], {
+          allows_multiple_answers: false,
+        });
         await bot.sendPoll(
           chatId,
           `${adverts[i].adItemId}\nВсе ли правильно?`,
